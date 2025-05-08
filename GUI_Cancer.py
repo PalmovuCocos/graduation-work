@@ -6,7 +6,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import cv2
 from PIL import Image, ImageTk
-from keras.models import load_model
+from keras.api.models import load_model
 import numpy as np
 
 
@@ -27,15 +27,6 @@ def neron_func():
         label_img.image = image
 
         # Работа НС
-        # CATEGORIES = ['actinic keratosis',
-        #               'basal cell carcinoma',
-        #               'dermatofibroma',
-        #               'melanoma',
-        #               'nevus',
-        #               'pigmented benign keratosis',
-        #               'seborrheic keratosis',
-        #               'squamous cell carcinoma',
-        #               'vascular lesion']
         CATEGORIES = ['akies',
                       'df',
                       'mel',
@@ -96,11 +87,11 @@ def patient_update():
 window = tk.Tk()
 window.protocol("WM_DELETE_WINDOW", on_closing)
 # настройка самого окна
-icon = tk.PhotoImage(file='snake.png')  # иконка
+#icon = tk.PhotoImage(file='snake.png')  # иконка
 window.title("Систаема обнаружения")
 window.geometry("+200+200")  # размеры окна +позиция окна на экране
 window.wm_attributes("-topmost", 1) # окно будет находится поверх других окон
-window.iconphoto(False, icon)   # загрузка иконки в окно
+#window.iconphoto(False, icon)   # загрузка иконки в окно
 window.resizable(False, False)  # изменение размера окна
 
 frame_list = tk.Frame(window, width=650, height=400)

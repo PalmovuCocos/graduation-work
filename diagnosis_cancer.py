@@ -1,23 +1,25 @@
 import csv
-import os, cv2
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import os
+import cv2
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import random
+
 from tensorflow import keras
-from keras.layers import Dense, Flatten, Dropout, Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dense, Flatten, Dropout, Conv2D, MaxPooling2D, Input
 
 
-
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 path1 = "cancer\\HAM10000_metadata.csv"
-DATADIRTrain ="cancer"
+DATADIRTrain = "cancer"
 category = []
 training_date = []
 name_img = []
 image = {}
-IMG_DIR = ['HAM10000_images_part_1','HAM10000_images_part_2']#HAM10000_images_part_2
+IMG_DIR = ['HAM10000_images_part_1', 'HAM10000_images_part_2']#HAM10000_images_part_2
 
 with open(path1, newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=",")
@@ -42,7 +44,7 @@ for i in range(len(category)):
         image[name_img[i]] = 6
 
 
-# print(image)
+print(image)
 IMG_SIZE = 100
 for img_dir in IMG_DIR:
     path = os.path.join(DATADIRTrain, img_dir)
@@ -76,28 +78,32 @@ y_train_cat = keras.utils.to_categorical(y_train, 7)
 
 # модель многослойной нс
 model = keras.Sequential([
-   Conv2D(128, (3,3), padding='same', activation='relu', input_shape=(100, 100, 3)), # прогонка изображения через ядра\
+   Input(shape=(100, 100, 3)),  # Явное указание входной формы
+   Conv2D(128, (3,3), padding='same', activation='relu'), # прогонка изображения через ядра
    MaxPooling2D((2, 2), strides=2),
 
-    Conv2D(64, (3, 3), padding='same', activation='relu'),
-    MaxPooling2D((2, 2), strides=2),
+   Conv2D(64, (3, 3), padding='same', activation='relu'),
+   MaxPooling2D((2, 2), strides=2),
 
-    Conv2D(32, (3, 3), padding='same', activation='relu'),
-    MaxPooling2D((2, 2), strides=2),
+   Conv2D(32, (3, 3), padding='same', activation='relu'),
+   MaxPooling2D((2, 2), strides=2),
 
-    Conv2D(16, (3, 3), padding='same', activation='relu'),
-    MaxPooling2D((2, 2), strides=2),
+   Conv2D(16, (3, 3), padding='same', activation='relu'),
+   MaxPooling2D((2, 2), strides=2),
 
-    Flatten(),   # создание входов для подачи изображения 28 на 28
+   Flatten(),   # создание входов для подачи изображения 28 на 28
 
-    Dense(128, activation='relu'),
-    Dense(7, activation='softmax')])    # выходной слой
-#print(model.summary())
+   Dense(128, activation='relu'),
+   Dense(7, activation='softmax')  # выходной слой
+])
+print(model.summary())
 
 # компиляция нейронной сети
-model.compile(optimizer ='nadam',
-              loss='categorical_crossentropy',  # выбрали этот критерий качества, то что тут задача классификации
-              metrics=['accuracy'])     # видим показатели в процентах ???
+model.compile(
+    optimizer='nadam',
+    loss='categorical_crossentropy',  # выбрали этот критерий качества, то что тут задача классификации
+    metrics=['accuracy']  # видим показатели в процентах ???
+)
 
 # запуск процесса обучения
 his = model.fit(x_train[:1000],  # входное обучающее множество
@@ -109,6 +115,7 @@ his = model.fit(x_train[:1000],  # входное обучающее множе�
 print(model.summary())
 #model.evaluate(x_test, y_test_cat)
 model.save('1000.h5')
+print(his.history['loss'], his.history['val_loss'])
 plt.plot(his.history['loss'])
 plt.plot(his.history['val_loss'])
 plt.show()
